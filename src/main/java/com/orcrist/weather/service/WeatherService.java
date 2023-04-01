@@ -40,7 +40,7 @@ public class WeatherService {
         return WeatherDto.convert(weatherEntityOptional.get());
     }
 
-    public WeatherEntity getWeatherFromWeatherStack(String city) {
+    private WeatherEntity getWeatherFromWeatherStack(String city) {
         ResponseEntity<String> responseEntity = restTemplate.getForEntity(API_URL + city, String.class);
 
         try {
@@ -52,7 +52,7 @@ public class WeatherService {
 
     }
 
-    public WeatherEntity saveWeatherEntity(String city, WeatherResponse weatherResponse) {
+    private WeatherEntity saveWeatherEntity(String city, WeatherResponse weatherResponse) {
         DateTimeFormatter dateTimeFormatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm");
         WeatherEntity weatherEntity = new WeatherEntity(city,
                 weatherResponse.location().name(),
