@@ -59,7 +59,7 @@ public class WeatherService {
                 weatherResponse.location().country(),
                 weatherResponse.current().temperature(),
                 LocalDateTime.now(),
-                LocalDateTime.parse(weatherResponse.location().localTime(), dateTimeFormatter)
+                LocalDateTime.parse(weatherResponse.location().localtime(), dateTimeFormatter)
         );
 
         return weatherRepository.save(weatherEntity);
