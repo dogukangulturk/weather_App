@@ -2,6 +2,7 @@ package com.orcrist.weather.service;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.orcrist.weather.constants.Constants;
 import com.orcrist.weather.dto.WeatherDto;
 import com.orcrist.weather.dto.WeatherResponse;
 import com.orcrist.weather.model.WeatherEntity;
@@ -17,8 +18,6 @@ import java.util.Optional;
 @Service
 public class WeatherService {
 
-    private static final String API_URL =
-            "http://api.weatherstack.com/current?access_key=db3fc45d8c41dee7af21efa629199e5a&query=";
     private final WeatherRepository weatherRepository;
     private final RestTemplate restTemplate;
     private final ObjectMapper objectMapper = new ObjectMapper();
@@ -33,15 +32,31 @@ public class WeatherService {
         Optional<WeatherEntity> weatherEntityOptional = weatherRepository.
                 findFirstByRequestedCityNameOrderByUpdatedTimeDesc(city);
 
+/*
         if (!weatherEntityOptional.isPresent()) {
             return WeatherDto.convert(getWeatherFromWeatherStack(city));
         }
 
+        if (weatherEntityOptional.get().getUpdatedTime().isBefore(LocalDateTime.now().minusMinutes(30))) {
+            return WeatherDto.convert(getWeatherFromWeatherStack(city));
+        }
+
         return WeatherDto.convert(weatherEntityOptional.get());
+*/
+
+        return weatherEntityOptional.map(weather -> {
+            if (weather.getUpdatedTime().isBefore(LocalDateTime.now().minusMinutes(30))) {
+                return WeatherDto.convert(getWeatherFromWeatherStack(city));
+            }
+            return WeatherDto.convert(weather);
+
+        }).orElseGet(() -> WeatherDto.convert(getWeatherFromWeatherStack(city)));
+
+
     }
 
     private WeatherEntity getWeatherFromWeatherStack(String city) {
-        ResponseEntity<String> responseEntity = restTemplate.getForEntity(API_URL + city, String.class);
+        ResponseEntity<String> responseEntity = restTemplate.getForEntity(getWeatherStackUrl(city), String.class);
 
         try {
             WeatherResponse weatherResponse = objectMapper.readValue(responseEntity.getBody(), WeatherResponse.class);
@@ -50,6 +65,10 @@ public class WeatherService {
             throw new RuntimeException(e);
         }
 
+    }
+
+    private String getWeatherStackUrl(String city){
+        return Constants.API_URL + Constants.ACCESS_KEY_PARAM + Constants.API_KEY + Constants.QUERY_KEY_PARAM + city;
     }
 
     private WeatherEntity saveWeatherEntity(String city, WeatherResponse weatherResponse) {
