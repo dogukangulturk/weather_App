@@ -9,7 +9,7 @@ import static java.lang.annotation.ElementType.*;
 
 @Documented
 @Constraint(
-        validatedBy = {}
+        validatedBy = {CityNameValidator.class}
 )
 @Target({METHOD, FIELD, PARAMETER})
 @Retention(RetentionPolicy.RUNTIME)
