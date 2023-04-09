@@ -23,8 +23,8 @@ public class WeatherAPI {
         this.weatherService = weatherService;
     }
 
-    @GetMapping("/{city}")
     @RateLimiter(name = "basic")
+    @GetMapping("/{city}")
     public ResponseEntity<WeatherDto> getWeather(@PathVariable("city") @CityNameConstraint @NotBlank String city) {
         return ResponseEntity.ok(weatherService.getWeatherByCityName(city));
     }
